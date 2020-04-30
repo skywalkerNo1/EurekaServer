@@ -1,0 +1,7 @@
+#spring:
+#  application:
+#    name: gcrm
+#  cloud:
+#    config:
+#      label: jiangsu
+

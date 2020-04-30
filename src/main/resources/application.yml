@@ -1,0 +1,27 @@
+server.session.timeout: 3600
+server:
+  port: 8761
+  tomcat:
+    uri-encoding: UTF-8
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+  profiles:
+    active:
+
+eureka:
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 6000
+  instance:
+    hostname: localhost
+    lease-renewal-interval-in-seconds: 5
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    eurekaServerConnectTimeoutSeconds: 5
+    eurekaServerReadTimeoutSeconds: 8
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+

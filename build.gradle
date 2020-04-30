@@ -1,0 +1,97 @@
+import org.yaml.snakeyaml.DumperOptions
+import org.yaml.snakeyaml.Yaml
+
+buildscript {
+	ext {
+		springBootVersion = '1.5.9.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "se.transmode.gradle:gradle-docker:1.2"
+		classpath 'org.yaml:snakeyaml:1.14'
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'docker'
+apply plugin: 'application'
+
+jar {
+	baseName = 'eurekaserver'
+	version = '0.0.1'
+}
+
+def env = System.getProperty("env") ?: "dev"
+
+task replaceConfigFile(type: Copy) {
+	def configHome = "${buildDir}/resources/main/settings/" + env
+	from(configHome) {
+		include '*.*'
+	}
+	into "${buildDir}/resources/main"
+}
+
+jar.dependsOn(replaceConfigFile)
+
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+}
+
+group = 'eurekaserver'
+version = '0.0.1'
+sourceCompatibility = 1.8
+
+repositories {
+//	maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+	mavenCentral()
+	jcenter()
+}
+
+
+ext {
+	springCloudVersion = 'Edgware.RELEASE'
+}
+
+dependencies {
+
+	compile 'org.springframework.cloud:spring-cloud-starter-config'
+
+	compile 'org.springframework.boot:spring-boot-starter-aop'
+
+	//新增
+	compile 'org.springframework.cloud:spring-cloud-starter-eureka-server:1.4.5.RELEASE'
+
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+def dockerTarget = System.getProperty("target") ?: "latest"
+
+task buildDocker(type: Docker, dependsOn: build, group: "custom") {
+	push = true
+	applicationName = "huaplus_gate/${jar.baseName}"
+	tagVersion = dockerTarget
+//	tag = "${project.group}/${jar.baseName}:${tagVersion}"
+	dockerfile = file("docker/Dockerfile.yml")
+	doFirst {
+		copy {
+			from jar
+			into stageDir
+		}
+	}
+}
+
+buildDocker.dependsOn(build)
+
+
+

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+  <!-- 定义日志文件 输入位置 -->
+  <property name="logDir" value="/data/app/logs" />
+  <!-- 日志最大的历史 60天 -->
+  <property name="maxHistory" value="60"/>
+
+  <!-- 控制台输出日志 -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger -%msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- logstash -->
+  <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <destination>logstash:4321</destination>
+    <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+      <customFields>{"appname":"eureka_server"}</customFields>
+    </encoder>
+    <!--<connectionStrategy>-->
+    <!--<roundRobin>-->
+    <!--<connectionTTL>5 minutes</connectionTTL>-->
+    <!--</roundRobin>-->
+    <!--</connectionStrategy>-->
+  </appender>
+
+  <!-- ERROR级别日志 -->
+  <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Prudent>true</Prudent>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logDir}/%d{yyyyMMdd}/error%d{yyyyMMdd}.log</fileNamePattern>
+      <maxHistory>${maxHistory}</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- WARN级别日志 -->
+  <appender name="WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Prudent>true</Prudent>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logDir}/%d{yyyyMMdd}/warn%d{yyyyMMdd}.log
+      </fileNamePattern>
+      <maxHistory>${maxHistory}</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- INFO级别日志 -->
+  <appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Prudent>true</Prudent>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logDir}/%d{yyyyMMdd}/info%d{yyyyMMdd}.log
+      </fileNamePattern>
+      <maxHistory>${maxHistory}</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- DEBUG级别日志 -->
+  <appender name="DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Prudent>true</Prudent>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logDir}/%d{yyyyMMdd}/debug%d{yyyyMMdd}.log
+      </fileNamePattern>
+      <maxHistory>${maxHistory}</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="java.sql" value="DEBUG" />
+  <logger name="huaplus.dao" value="DEBUG" />
+  <logger name="huaplus.service" value="DEBUG" />
+  <logger name="huaplus.controller" value="DEBUG" />
+
+  <!-- root级别  DEBUG -->
+  <root level="INFO">
+    <!-- 控制台输出 -->
+    <!--<appender-ref ref="STDOUT" />-->
+    <!-- 文件输出 -->
+    <appender-ref ref="ERROR" />
+    <appender-ref ref="INFO" />
+    <appender-ref ref="WARN" />
+    <appender-ref ref="logstash" />
+  </root>
+
+</configuration>
